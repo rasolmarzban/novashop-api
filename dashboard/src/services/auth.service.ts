@@ -1,5 +1,11 @@
 import api from './api';
-import type { LoginRequest, LoginResponse } from '../types/auth';
+
+import type {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+} from '../types/auth';
 
 export async function login(
   credentials: LoginRequest,
@@ -7,6 +13,17 @@ export async function login(
   const response = await api.post<LoginResponse>(
     '/auth/login',
     credentials,
+  );
+
+  return response.data;
+}
+
+export async function register(
+  data: RegisterRequest,
+): Promise<RegisterResponse> {
+  const response = await api.post<RegisterResponse>(
+    '/auth/register',
+    data,
   );
 
   return response.data;

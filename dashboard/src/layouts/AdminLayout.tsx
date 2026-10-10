@@ -32,6 +32,15 @@ export default function AdminLayout() {
           >
             Products
           </NavLink>
+          
+          <NavLink
+            to="/dashboard/products/trash"
+            className={({ isActive }) =>
+              isActive ? 'nav-link active' : 'nav-link'
+            }
+          >
+            Trash
+          </NavLink>
 
           <NavLink
             to="/dashboard/orders"

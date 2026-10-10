@@ -1,3 +1,4 @@
+
 import {
   useMutation,
   useQuery,
@@ -9,30 +10,23 @@ import {
   deleteProduct,
   getProduct,
   getProducts,
+  getTrashProducts,
+  permanentlyDeleteProduct,
+  restoreProduct,
   updateProduct,
   type CreateProductRequest,
   type UpdateProductRequest,
 } from './product.service';
 
-/**
- * Centralized query keys for Products.
- */
 export const productKeys = {
   all: ['products'] as const,
-
   lists: () => [...productKeys.all, 'list'] as const,
-
   list: () => [...productKeys.lists()] as const,
-
+  trash: () => [...productKeys.all, 'trash'] as const,
   details: () => [...productKeys.all, 'detail'] as const,
-
-  detail: (id: number) =>
-    [...productKeys.details(), id] as const,
+  detail: (id: number) => [...productKeys.details(), id] as const,
 };
 
-/**
- * Fetch all products.
- */
 export function useProducts() {
   return useQuery({
     queryKey: productKeys.list(),
@@ -40,9 +34,13 @@ export function useProducts() {
   });
 }
 
-/**
- * Fetch one product.
- */
+export function useTrashProducts() {
+  return useQuery({
+    queryKey: productKeys.trash(),
+    queryFn: getTrashProducts,
+  });
+}
+
 export function useProduct(id: number) {
   return useQuery({
     queryKey: productKeys.detail(id),
@@ -51,27 +49,19 @@ export function useProduct(id: number) {
   });
 }
 
-/**
- * Create product.
- */
 export function useCreateProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateProductRequest) =>
-      createProduct(data),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    mutationFn: (data: CreateProductRequest) => createProduct(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: productKeys.lists(),
       });
     },
   });
 }
 
-/**
- * Update product.
- */
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
 
@@ -84,36 +74,71 @@ export function useUpdateProduct() {
       data: UpdateProductRequest;
     }) => updateProduct(id, data),
 
-    onSuccess: (updatedProduct) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (product) => {
+      queryClient.setQueryData(productKeys.detail(product.id), product);
+
+      await queryClient.invalidateQueries({
         queryKey: productKeys.lists(),
       });
-
-      queryClient.setQueryData(
-        productKeys.detail(updatedProduct.id),
-        updatedProduct,
-      );
     },
   });
 }
 
-/**
- * Delete product.
- */
 export function useDeleteProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) =>
-      deleteProduct(id),
+    mutationFn: (id: number) => deleteProduct(id),
 
-    onSuccess: (_deletedProduct, deletedId) => {
-      queryClient.invalidateQueries({
-        queryKey: productKeys.lists(),
+    onSuccess: async (_product, id) => {
+      queryClient.removeQueries({
+        queryKey: productKeys.detail(id),
       });
 
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: productKeys.lists(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: productKeys.trash(),
+        }),
+      ]);
+    },
+  });
+}
+
+export function useRestoreProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => restoreProduct(id),
+
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: productKeys.lists(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: productKeys.trash(),
+        }),
+      ]);
+    },
+  });
+}
+
+export function usePermanentlyDeleteProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => permanentlyDeleteProduct(id),
+
+    onSuccess: async (_product, id) => {
       queryClient.removeQueries({
-        queryKey: productKeys.detail(deletedId),
+        queryKey: productKeys.detail(id),
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: productKeys.trash(),
       });
     },
   });
