@@ -1,0 +1,209 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  color: #1f2937;
+}
+
+/* =========================
+   Admin Layout
+   ========================= */
+
+.admin-layout {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* =========================
+   Sidebar
+   ========================= */
+
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #111827;
+  padding: 24px 16px;
+}
+
+.sidebar-logo {
+  padding: 0 12px 30px;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-link {
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: #9ca3af;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.nav-link:hover {
+  background: #1f2937;
+  color: white;
+}
+
+.nav-link.active {
+  background: #2563eb;
+  color: white;
+}
+
+.logout-button {
+  margin-top: auto;
+  border: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #1f2937;
+  color: #d1d5db;
+  cursor: pointer;
+  text-align: left;
+}
+
+.logout-button:hover {
+  background: #374151;
+  color: white;
+}
+
+/* =========================
+   Main
+   ========================= */
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-user {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.admin-content {
+  padding: 32px;
+}
+
+/* =========================
+   Page Header
+   ========================= */
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.page-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+/* =========================
+   Statistics
+   ========================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.stat-card {
+  padding: 24px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.stat-label {
+  display: block;
+  margin-bottom: 12px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.stat-value {
+  font-size: 28px;
+}
+
+/* =========================
+   Dashboard Sections
+   ========================= */
+
+.dashboard-section {
+  margin-top: 28px;
+  padding: 24px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.dashboard-section h2 {
+  margin-top: 0;
+}
+
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    width: 190px;
+  }
+
+  .admin-content {
+    padding: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header {
+    padding: 0 20px;
+  }
+}

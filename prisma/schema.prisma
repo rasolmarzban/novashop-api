@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id               Int      @id @default(autoincrement())
+  name             String
+  email            String   @unique
+  password         String
+  role             UserRole @default(USER)
+  refreshTokenHash String?
+  createAt         DateTime @default(now())
+  updateAt         DateTime @updatedAt
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+
+  name String
+  slug String @unique
+
+  description String? @db.Text
+
+  price     Decimal  @db.Decimal(10, 2)
+  salePrice Decimal? @db.Decimal(10, 2)
+
+  stock Int @default(0)
+
+  isActive Boolean @default(true)
+
+  deletedAt DateTime?
+
+  images ProductImage[]
+
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+}
+
+model ProductImage {
+  id Int @id @default(autoincrement())
+
+  url     String  @db.Text
+  altText String?
+
+  sortOrder Int @default(0)
+
+  isFeatured Boolean @default(false)
+
+  productId Int
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createAt DateTime @default(now())
+}

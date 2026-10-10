@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: novashop-order-worker
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: novashop-order-worker
+
+  template:
+    metadata:
+      labels:
+        app: novashop-order-worker
+
+    spec:
+      containers:
+        - name: order-worker
+
+          image: novashop-api-api:latest
+
+          imagePullPolicy: IfNotPresent
+
+          command:
+            - node
+
+          args:
+            - dist/src/workers/order-worker/main.js
+
+          envFrom:
+            - configMapRef:
+                name: novashop-api-config
+
+            - secretRef:
+                name: novashop-api-secret
+
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+

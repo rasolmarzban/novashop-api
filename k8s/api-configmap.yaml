@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: novashop-api-config
+
+data:
+  DATABASE_HOST: 'novashop-mysql'
+  DATABASE_PORT: '3306'
+  DATABASE_NAME: 'novashop'
+  DATABASE_USER: 'novashop_app'
+
+  RABBITMQ_HOST: 'novashop-rabbitmq'
+  RABBITMQ_PORT: '5672'

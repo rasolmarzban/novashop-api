@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: novashop-notification-worker
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: novashop-notification-worker
+
+  template:
+    metadata:
+      labels:
+        app: novashop-notification-worker
+
+    spec:
+      containers:
+        - name: notification-worker
+
+          image: novashop-api-api:latest
+
+          imagePullPolicy: IfNotPresent
+
+          command:
+            - node
+
+          args:
+            - dist/src/workers/notification-worker/main.js
+
+          envFrom:
+            - configMapRef:
+                name: novashop-api-config
+
+            - secretRef:
+                name: novashop-api-secret
+
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
