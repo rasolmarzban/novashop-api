@@ -31,10 +31,16 @@ spec:
 
           env:
             - name: RABBITMQ_DEFAULT_USER
-              value: 'novashop'
+              valueFrom:
+                secretKeyRef:
+                  name: novashop-api-secret
+                  key: RABBITMQ_USER
 
             - name: RABBITMQ_DEFAULT_PASS
-              value: 'NovaShopApp@2026!'
+              valueFrom:
+                secretKeyRef:
+                  name: novashop-api-secret
+                  key: RABBITMQ_PASSWORD
 
           resources:
             requests:
@@ -48,11 +54,22 @@ spec:
           volumeMounts:
             - name: rabbitmq-data
               mountPath: /var/lib/rabbitmq
+            - name: rabbitmq-config
+              mountPath: /etc/rabbitmq/rabbitmq.conf
+              subPath: rabbitmq.conf
+              readOnly: true
+            - name: rabbitmq-config
+              mountPath: /etc/rabbitmq/definitions.json
+              subPath: definitions.json
+              readOnly: true
 
       volumes:
         - name: rabbitmq-data
           persistentVolumeClaim:
             claimName: novashop-rabbitmq-pvc
+        - name: rabbitmq-config
+          configMap:
+            name: novashop-rabbitmq-config
 
 ---
 apiVersion: v1

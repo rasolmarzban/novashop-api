@@ -92,3 +92,83 @@ export async function permanentlyDeleteProduct(
   const response = await api.delete<Product>(`/products/${id}/permanent`);
   return response.data;
 }
+
+/**
+ * Upload multiple images for a product.
+ */
+export async function uploadProductImages(
+  productId: number,
+  files: File[],
+): Promise<ProductImage[]> {
+  const formData = new FormData();
+
+  files.forEach((file) => {
+    formData.append('files', file);
+  });
+
+  const response = await api.post<ProductImage[]>(
+    `/products/${productId}/images`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
+
+  return response.data;
+}
+
+/**
+ * Manually select the featured image.
+ */
+export async function setFeaturedProductImage(
+  productId: number,
+  imageId: number,
+): Promise<ProductImage> {
+  const response = await api.patch<ProductImage>(
+    `/products/${productId}/images/${imageId}/featured`,
+  );
+
+  return response.data;
+}
+
+/**
+ * Save the order of all product images.
+ */
+export async function reorderProductImages(
+  productId: number,
+  imageIds: number[],
+): Promise<Product> {
+  const response = await api.patch<Product>(
+    `/products/${productId}/images/order`,
+    { imageIds },
+  );
+
+  return response.data;
+}
+
+/**
+ * Delete one product image.
+ */
+export async function deleteProductImage(
+  productId: number,
+  imageId: number,
+): Promise<ProductImage> {
+  const response = await api.delete<ProductImage>(
+    `/products/${productId}/images/${imageId}`,
+  );
+
+  return response.data;
+}
+
+/**
+ * Convert a relative upload path into a browser-accessible URL.
+ */
+export function getProductImageUrl(url: string): string {
+  if (/^https?:\/\//i.test(url)) {
+    return url;
+  }
+
+  return new URL(url, api.defaults.baseURL).toString();
+}

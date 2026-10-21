@@ -18,6 +18,9 @@ import './ProductsPage.css';
 import ConfirmModal from '../components/ConfirmModal';
 import { notify } from '../stores/notification.store';
 
+import ProductGalleryModal from '../components/ProductGalleryModal';
+import { getProductImageUrl } from '../services/product.service';
+
 interface ProductFormState {
   name: string;
   slug: string;
@@ -58,6 +61,8 @@ export default function ProductsPage() {
 
   const isSaving =
     createMutation.isPending || updateMutation.isPending;
+
+  const [galleryProduct, setGalleryProduct] = useState<Product | null>(null);
 
   function updateField<K extends keyof ProductFormState>(
     field: K,
@@ -169,7 +174,12 @@ export default function ProductsPage() {
   } else {
     const createPayload: CreateProductRequest = payload;
 
-    await createMutation.mutateAsync(createPayload);
+const createdProduct = await createMutation.mutateAsync(createPayload);
+closeForm();
+setGalleryProduct(createdProduct);
+
+notify.success('Product created. You can now add its images.');
+return;
   }
 
   closeForm();
@@ -437,14 +447,38 @@ async function confirmMoveToTrash() {
             <tbody>
               {products.map((product) => (
                 <tr key={product.id}>
-                  <td>
-                    <div className="product-name">
-                      {product.name}
-                    </div>
-                    <div className="product-slug">
-                      {product.slug}
-                    </div>
-                  </td>
+                 
+<td>
+  <div className="product-name-cell">
+    {(() => {
+      const featuredImage = product.images?.find(
+        (image) => image.isFeatured,
+      );
+
+      return featuredImage ? (
+        <img
+          className="product-table-thumbnail"
+          src={getProductImageUrl(featuredImage.url)}
+          alt={featuredImage.altText ?? product.name}
+          loading="lazy"
+        />
+      ) : (
+        <div
+          className="product-table-thumbnail product-table-thumbnail-placeholder"
+          aria-hidden="true"
+        >
+          No image
+        </div>
+      );
+    })()}
+
+    <div className="product-name-details">
+      <div className="product-name">{product.name}</div>
+      <div className="product-slug">{product.slug}</div>
+    </div>
+  </div>
+</td>
+
 
                   <td>
                     {product.salePrice !== null ? (
@@ -478,7 +512,16 @@ async function confirmMoveToTrash() {
                   </td>
 
                   <td>
+                    
                     <div className="product-row-actions">
+                      <button
+                        type="button"
+                        className="product-edit-button"
+                        onClick={() => setGalleryProduct(product)}
+                        disabled={deleteMutation.isPending}
+                      >
+                      Gallery ({product.images?.length ?? 0})
+                      </button>
                       <button
                         type="button"
                         className="product-edit-button"
@@ -521,6 +564,14 @@ async function confirmMoveToTrash() {
   onCancel={() => setPendingDelete(null)}
   onConfirm={confirmMoveToTrash}
 />
+
+{galleryProduct && (
+  <ProductGalleryModal
+    productId={galleryProduct.id}
+    productName={galleryProduct.name}
+    onClose={() => setGalleryProduct(null)}
+  />
+)}
     </section>
   );
 }

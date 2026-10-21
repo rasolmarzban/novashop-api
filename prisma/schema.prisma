@@ -12,6 +12,14 @@ enum UserRole {
   ADMIN
 }
 
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 model User {
   id               Int      @id @default(autoincrement())
   name             String
@@ -19,31 +27,25 @@ model User {
   password         String
   role             UserRole @default(USER)
   refreshTokenHash String?
+  orders           Order[]
   createAt         DateTime @default(now())
   updateAt         DateTime @updatedAt
 }
 
 model Product {
-  id Int @id @default(autoincrement())
-
-  name String
-  slug String @unique
-
-  description String? @db.Text
-
-  price     Decimal  @db.Decimal(10, 2)
-  salePrice Decimal? @db.Decimal(10, 2)
-
-  stock Int @default(0)
-
-  isActive Boolean @default(true)
-
-  deletedAt DateTime?
-
-  images ProductImage[]
-
-  createAt DateTime @default(now())
-  updateAt DateTime @updatedAt
+  id          Int            @id @default(autoincrement())
+  name        String
+  slug        String         @unique
+  description String?        @db.Text
+  price       Decimal        @db.Decimal(10, 2)
+  salePrice   Decimal?       @db.Decimal(10, 2)
+  stock       Int            @default(0)
+  isActive    Boolean        @default(true)
+  deletedAt   DateTime?
+  images      ProductImage[]
+  orderItems  OrderItem[]
+  createAt    DateTime       @default(now())
+  updateAt    DateTime       @updatedAt
 }
 
 model ProductImage {
@@ -61,4 +63,52 @@ model ProductImage {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   createAt DateTime @default(now())
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  orderNumber String @unique
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  status OrderStatus @default(PENDING)
+
+  // Store the total charged at the time the order was created.
+  subtotal Decimal @db.Decimal(10, 2)
+
+  // Shipping and tax can be calculated in a later checkout stage.
+  shippingCost Decimal @default(0) @db.Decimal(10, 2)
+  taxAmount    Decimal @default(0) @db.Decimal(10, 2)
+  total        Decimal @db.Decimal(10, 2)
+
+  items OrderItem[]
+
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+
+  @@index([userId, createAt])
+  @@index([status, createAt])
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  // Preserve the product details and price as they were at purchase time.
+  productName String
+  unitPrice   Decimal @db.Decimal(10, 2)
+  quantity    Int
+  lineTotal   Decimal @db.Decimal(10, 2)
+
+  createAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
 }

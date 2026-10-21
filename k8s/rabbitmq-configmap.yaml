@@ -1,0 +1,51 @@
+apiVersion: v1
+data:
+  definitions.json: |
+    {
+      "exchanges": [
+        {
+          "name": "novashop_exchange",
+          "vhost": "/",
+          "type": "topic",
+          "durable": true,
+          "auto_delete": false,
+          "internal": false,
+          "arguments": {}
+        },
+        {
+          "name": "novashop_dlx",
+          "vhost": "/",
+          "type": "direct",
+          "durable": true,
+          "auto_delete": false,
+          "internal": false,
+          "arguments": {}
+        }
+      ],
+      "queues": [
+        {
+          "name": "order_failed_queue",
+          "vhost": "/",
+          "durable": true,
+          "auto_delete": false,
+          "arguments": {
+            "x-queue-type": "classic"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "source": "novashop_dlx",
+          "vhost": "/",
+          "destination": "order_failed_queue",
+          "destination_type": "queue",
+          "routing_key": "order.failed",
+          "arguments": {}
+        }
+      ]
+    }
+  rabbitmq.conf: ""
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: novashop-rabbitmq-config
