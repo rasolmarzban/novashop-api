@@ -1,10 +1,6 @@
-
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  CART_UPDATED_EVENT,
-  getCartItemCount,
-} from '../services/cart.service';
+import { CART_UPDATED_EVENT, getCartItemCount } from '../services/cart.service';
 import './StorefrontHeader.css';
 
 function StorefrontHeader() {
@@ -33,9 +29,16 @@ function StorefrontHeader() {
           Shop
         </Link>
 
+        <Link to="/account" className="storefront-nav-link">
+          My Account
+        </Link>
+
         <Link to="/cart" className="storefront-cart-link">
           <span>Cart</span>
-          <span className="storefront-cart-count" aria-label={`${cartCount} items in cart`}>
+          <span
+            className="storefront-cart-count"
+            aria-label={`${cartCount} items in cart`}
+          >
             {cartCount}
           </span>
         </Link>

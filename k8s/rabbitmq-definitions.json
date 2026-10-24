@@ -1,3 +1,4 @@
+
 {
   "exchanges": [
     {
@@ -17,11 +18,29 @@
       "auto_delete": false,
       "internal": false,
       "arguments": {}
+    },
+    {
+      "name": "notification_dlx",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
     }
   ],
   "queues": [
     {
       "name": "order_failed_queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "notification_failed_queue",
       "vhost": "/",
       "durable": true,
       "auto_delete": false,
@@ -37,6 +56,14 @@
       "destination": "order_failed_queue",
       "destination_type": "queue",
       "routing_key": "order.failed",
+      "arguments": {}
+    },
+    {
+      "source": "notification_dlx",
+      "vhost": "/",
+      "destination": "notification_failed_queue",
+      "destination_type": "queue",
+      "routing_key": "notification.failed",
       "arguments": {}
     }
   ]

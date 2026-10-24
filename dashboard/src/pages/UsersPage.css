@@ -1,0 +1,35 @@
+
+.customers-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.customers-search input {
+  flex: 1;
+  min-width: 220px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #111827;
+  font: inherit;
+}
+
+.customers-search input:focus {
+  border-color: #4f46e5;
+  outline: 2px solid rgb(79 70 229 / 15%);
+}
+
+@media (max-width: 480px) {
+  .customers-search {
+    flex-direction: column;
+  }
+
+  .customers-search input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+  }
+}

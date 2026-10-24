@@ -46,6 +46,11 @@ model Product {
   orderItems  OrderItem[]
   createAt    DateTime       @default(now())
   updateAt    DateTime       @updatedAt
+  categoryId  Int?
+  category    Category?      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  brandId     Int?
+  brand       Brand?         @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  tags        Tag[]
 }
 
 model ProductImage {
@@ -63,6 +68,50 @@ model ProductImage {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   createAt DateTime @default(now())
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  slug        String  @unique
+  description String? @db.Text
+  isActive    Boolean @default(true)
+
+  parentId Int?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children Category[] @relation("CategoryHierarchy")
+
+  products Product[]
+
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+
+  @@index([parentId])
+}
+
+model Brand {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  slug        String  @unique
+  description String? @db.Text
+  logoUrl     String? @db.Text
+  isActive    Boolean @default(true)
+
+  products Product[]
+
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  slug String @unique
+
+  products Product[]
+
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
 }
 
 model Order {

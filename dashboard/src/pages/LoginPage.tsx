@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/auth.service';
 import { useAuthStore } from '../stores/auth.store';
 import { notify } from '../stores/notification.store';
-
+import { getMyProfile } from '../services/customer.service';
 import './AuthPage.css';
 
 export default function LoginPage() {
@@ -27,14 +27,22 @@ export default function LoginPage() {
 
     try {
       const tokens = await login({
-        email: email.trim(),
-        password,
-      });
+  email: email.trim(),
+  password,
+});
 
-      setTokens(tokens);
-      notify.success('Welcome back! You are now logged in.');
+setTokens(tokens);
 
-      navigate('/dashboard', { replace: true });
+const profile = await getMyProfile();
+useAuthStore.getState().setUser(profile);
+
+notify.success('Welcome back!');
+
+if (profile.role === 'ADMIN') {
+  navigate('/dashboard', { replace: true });
+} else {
+  navigate('/account', { replace: true });
+}
     } catch (error) {
       let message = 'Unable to log in. Please try again.';
 
